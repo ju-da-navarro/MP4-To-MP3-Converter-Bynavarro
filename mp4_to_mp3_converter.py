@@ -9,8 +9,7 @@ import tkinter as tk
 from tkinter import filedialog
 import tkinter.messagebox as mbox
 from PIL import Image, ImageTk
-import moviepy
-import moviepy.editor
+import moviepy as mp  # Changed this
 import os
 
 
@@ -53,21 +52,27 @@ fname.place(x=360, y = 505)
 chooseb = Button(window, text='SELECT', command=mp4_choose, font=("Arial", 17), bg = "light green", fg = "blue", borderwidth=3, relief="raised")
 chooseb.place(x=800, y=500)
 
-# Function for convert Mp4 to Mp3
 def convert():
-    video = moviepy.editor.VideoFileClip(filename)
-    # Convert video to audio
-    audio=video.audio
+    try:
+        # UPDATED LINE: Removed .editor
+        video = mp.VideoFileClip(filename)
+        
+        # Convert video to audio
+        audio = video.audio
 
-    aud_fname = ""
-    for i in onlyfilename:
-        if i == '.':
-            break
-        else:
-            aud_fname = aud_fname + i
-    print(aud_fname)
-    audio.write_audiofile(f'{aud_fname}.mp3')
-    mbox.showinfo("Success", "Video converted to Audio.\n\nAudio Saved Successfully")
+        # Cleaner way to get filename without extension
+        aud_fname = os.path.splitext(onlyfilename)[0]
+        
+        print(f"Converting: {aud_fname}")
+        audio.write_audiofile(f'{aud_fname}.mp3')
+        
+        # Good practice: close the files after conversion to free up memory
+        audio.close()
+        video.close()
+        
+        mbox.showinfo("Success", "Video converted to Audio.\n\nAudio Saved Successfully")
+    except Exception as e:
+        mbox.showerror("Error", f"An error occurred: {str(e)}")
 
 # created a choose button , to choose the image from the local system
 convertb = Button(window, text='CONVERT MP4 To MP3', command=convert, font=("Arial", 20), bg = "light green", fg = "blue", borderwidth=3, relief="raised")
